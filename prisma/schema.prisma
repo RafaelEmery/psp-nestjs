@@ -1,0 +1,82 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Transaction {
+  id                   String            @id @default(uuid())
+  description          String
+  method               String
+  status               TransactionStatus @default(in_progress)
+  expectedFee          Float?
+  cardNumber           String            @db.VarChar(16)
+  cardOwner            String
+  cardExpirationYear   String            @db.VarChar(4)
+  cardVerificationCode String            @db.VarChar(3)
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  Payable              Payable?
+}
+
+model Payable {
+  id            String        @id @default(uuid())
+  Transaction   Transaction   @relation(fields: [transactionId], references: [id])
+  transactionId String        @unique
+  Customer      Customer      @relation(fields: [customerId], references: [id])
+  customerId    String
+  status        PayableStatus
+  paymentDate   DateTime
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Customer {
+  id          String    @id @default(uuid())
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  payables    Payable[]
+  balances    Balance[]
+}
+
+model Balance {
+  id           String           @id @default(uuid())
+  Customer     Customer         @relation(fields: [customerId], references: [id])
+  customerId   String
+  available    Float            @default(0.0)
+  waitingFunds Float            @default(0.0)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  histories    BalanceHistory[]
+}
+
+model BalanceHistory {
+  id           String   @id @default(uuid())
+  Balance      Balance  @relation(fields: [balanceId], references: [id])
+  balanceId    String
+  available    Float    @default(0.0)
+  waitingFunds Float    @default(0.0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+enum TransactionStatus {
+  in_progress
+  success
+  failed
+}
+
+enum PayableStatus {
+  waiting_funds
+  paid
+}
