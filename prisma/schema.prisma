@@ -17,7 +17,7 @@ model Transaction {
   id                   String            @id @default(uuid())
   description          String
   method               String
-  status               TransactionStatus @default(in_progress)
+  status               TransactionStatus @default(processing)
   expectedFee          Float?
   cardNumber           String            @db.VarChar(16)
   cardOwner            String
@@ -71,8 +71,8 @@ model BalanceHistory {
 }
 
 enum TransactionStatus {
-  in_progress
-  success
+  processing
+  finished
   failed
 }
 

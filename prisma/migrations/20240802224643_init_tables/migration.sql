@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "TransactionStatus" AS ENUM ('in_progress', 'success', 'failed');
+CREATE TYPE "TransactionStatus" AS ENUM ('processing', 'finished', 'failed');
 
 -- CreateEnum
 CREATE TYPE "PayableStatus" AS ENUM ('waiting_funds', 'paid');
@@ -9,7 +9,7 @@ CREATE TABLE "Transaction" (
     "id" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "method" TEXT NOT NULL,
-    "status" "TransactionStatus" NOT NULL DEFAULT 'in_progress',
+    "status" "TransactionStatus" NOT NULL DEFAULT 'processing',
     "expectedFee" DOUBLE PRECISION,
     "cardNumber" VARCHAR(16) NOT NULL,
     "cardOwner" TEXT NOT NULL,
